@@ -1,0 +1,77 @@
+const { validationResult } = require("express-validator");
+const db = require("../db/queries");
+const bcrypt = require("bcryptjs");
+require("dotenv").config();
+
+
+// Renders empty sign-up form
+async function renderHomePage(req, res) {
+  res.render("home", {user: req.user});
+}
+
+// Renders empty sign-up form
+async function renderSignUp(req, res) {
+  res.render("sign-up", {
+    errors: [],
+    first_name: "",
+    last_name: "",
+    username: "",
+    isAdmin: false,
+  });
+}
+
+// Handles sign-up submission
+async function handleSignUp(req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).render("sign-up", {
+      errors: errors.array(),
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      username: req.body.username,
+      isAdmin: req.body.isAdmin === "true",
+    });
+  }
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  await db.createUser(req, hashedPassword);
+  res.redirect("/");
+}
+
+// Renders password try page
+async function renderPasswordTry(req, res) {
+  res.render("password-try", { 
+    error: null,
+    secretUnlocked: false
+  });
+}
+
+// Handles password trys
+async function handlePasswordTry(req, res) {
+
+  if (req.body.password !== process.env.TRYPASSWORD) {
+    return res.render('password-try', {
+      error: 'Incorrect secret password, please try again.',
+      secretUnlocked: false
+    });
+  }
+
+  await db.giveMembershipStatus(req.user.id);
+  const updatedUser = await db.findUserById(req.user.id);
+  res.redirect('/secret');
+
+};
+
+async function renderSecret(req, res) {
+  if (req.user.is_member){
+    res.render("secret");
+  }
+}
+
+module.exports = {
+  renderHomePage,
+  renderSignUp,
+  handleSignUp,
+  renderPasswordTry,
+  handlePasswordTry,
+  renderSecret
+};

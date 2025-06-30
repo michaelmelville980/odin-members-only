@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up</title>
+  </head>
+  <body>
+    <h1>Sign Up</h1>
+
+    <% if (errors && errors.length) { %>
+    <ul class="errors">
+      <% errors.forEach(err => { %>
+      <li><%= err.msg %></li>
+      <% }) %>
+    </ul>
+    <% } %>
+
+    <form id="signup-form" action="/sign-up" method="post">
+
+      <label for="first_name">First Name</label>
+      <input
+        id="first_name"
+        name="first_name"
+        type="text"
+        value="<%= typeof first_name !== 'undefined' ? first_name : '' %>"
+        required
+      />
+
+      <label for="last_name">Last Name</label>
+      <input
+        id="last_name"
+        name="last_name"
+        type="text"
+        value="<%= typeof last_name !== 'undefined' ? last_name : '' %>"
+        required
+      />
+
+      <label for="username">Email</label>
+      <input
+        id="username"
+        name="username"
+        type="email"
+        value="<%= typeof username !== 'undefined' ? username : '' %>"
+        required
+      />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required />
+
+      <label for="confirmPassword">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        name="confirmPassword"
+        type="password"
+        required
+      />
+
+      <label for="isAdmin">
+        <input id="isAdmin" name="isAdmin" type="checkbox" value="true" <%=
+        isAdmin ? 'checked' : '' %> /> I am an admin
+      </label>
+
+      <button type="submit">Sign Up</button>
+    </form>
+    
+  </body>
+</html>
